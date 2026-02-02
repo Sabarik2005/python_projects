@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimalID | AI Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="card">
+        <header>
+            <h1>Animal<span>ID</span></h1>
+            <p>Identify species using Deep Learning</p>
+        </header>
+
+        <div class="drop-zone" id="drop-zone">
+            <div id="prompt">
+                <div class="icon">🖼️</div>
+                <p>Drag & Drop or <span>Browse</span></p>
+                <small>JPG, PNG, WebP, AVIF</small>
+            </div>
+            <img id="preview" src="" alt="Preview">
+            <input type="file" id="file-input" hidden accept=".jpg,.jpeg,.png,.webp,.avif">
+        </div>
+
+        <button id="upload-btn" disabled>Identify Animal</button>
+
+        <div id="result" class="hidden">
+            <div class="divider"></div>
+            <p>Result:</p>
+            <h2 id="animal-name">---</h2>
+            <div class="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+            <p id="confidence-score">Confidence: 0%</p>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const preview = document.getElementById('preview');
+        const prompt = document.getElementById('prompt');
+        const btn = document.getElementById('upload-btn');
+
+        dropZone.onclick = () => fileInput.click();
+
+        fileInput.onchange = (e) => handleFiles(e.target.files[0]);
+
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('hover'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('hover');
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('hover');
+            handleFiles(e.dataTransfer.files[0]);
+        };
+
+        function handleFiles(file) {
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    prompt.style.display = 'none';
+                    btn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+                // Attach file to input for the click event
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+            }
+        }
+
+        btn.onclick = async () => {
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            btn.innerText = "Analyzing...";
+            const response = await fetch('/predict', { method: 'POST', body: formData });
+            const data = await response.json();
+            
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('animal-name').innerText = data.label;
+            document.getElementById('confidence-score').innerText = "Confidence: " + data.confidence;
+            document.getElementById('progress-bar').style.width = data.confidence;
+            btn.innerText = "Identify Animal";
+        };
+    </script>
+</body>
+</html>

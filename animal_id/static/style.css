@@ -1,0 +1,92 @@
+:root {
+    --blue: #00d2ff;
+    --violet: #9d50bb;
+    --pink: #ff00cc;
+    --bg: #0f0c29;
+}
+
+body {
+    background: var(--bg);
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: white;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+h1 span {
+    background: linear-gradient(to right, var(--blue), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.drop-zone {
+    border: 2px dashed var(--violet);
+    border-radius: 15px;
+    padding: 30px;
+    margin: 20px 0;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.drop-zone.hover {
+    border-color: var(--pink);
+    background: rgba(255, 0, 204, 0.1);
+}
+
+#preview {
+    width: 100%;
+    border-radius: 10px;
+    display: none;
+}
+
+.icon { font-size: 40px; }
+
+button {
+    background: linear-gradient(45deg, var(--blue), var(--violet), var(--pink));
+    border: none;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled { opacity: 0.4; }
+
+.hidden { display: none; }
+
+.progress-container {
+    background: rgba(255,255,255,0.1);
+    height: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+#progress-bar {
+    background: var(--pink);
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+    transition: width 0.5s;
+}
+
+.divider {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin: 20px 0;
+}
