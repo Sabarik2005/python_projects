@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceFlow AI | STT & TTS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VoiceFlow <span>AI</span></h1>
+            <p>Convert text to speech and speech to text seamlessly.</p>
+        </header>
+        
+        <section class="card">
+            <div class="card-header">
+                <span class="icon">🔊</span>
+                <h3>Text to Speech</h3>
+            </div>
+            <textarea id="text-input" placeholder="Enter text here to convert to voice..."></textarea>
+            <div class="controls">
+                <select id="voice-select">
+                    <option value="male">Male Voice</option>
+                    <option value="female">Female Voice</option>
+                </select>
+                <button id="speak-btn">Speak Text</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <span class="icon">🎙️</span>
+                <h3>Speech to Text</h3>
+            </div>
+            <div id="transcript" class="transcript-box">Click "Start Listening" to begin...</div>
+            <div class="button-group">
+                <button id="record-btn" class="secondary">Start Listening</button>
+                <button id="stop-btn" class="danger">Stop Listening</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- TEXT TO SPEECH (TTS) ---
+        const synth = window.speechSynthesis;
+        const speakBtn = document.getElementById('speak-btn');
+        const textInput = document.getElementById('text-input');
+        const voiceSelect = document.getElementById('voice-select');
+
+        speakBtn.onclick = () => {
+            if (synth.speaking) return;
+            const utterance = new SpeechSynthesisUtterance(textInput.value);
+            const voices = synth.getVoices();
+            
+            // Logic to select gendered voices based on system availability
+            if (voiceSelect.value === 'female') {
+                utterance.voice = voices.find(v => v.name.includes('Google US English') || v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha')) || voices[0];
+            } else {
+                utterance.voice = voices.find(v => v.name.includes('Microsoft David') || v.name.includes('Male') || v.name.includes('Alex')) || voices[0];
+            }
+            synth.speak(utterance);
+        };
+
+        // --- SPEECH TO TEXT (STT) ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Your browser does not support Speech Recognition. Please use Chrome or Edge.");
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            const recordBtn = document.getElementById('record-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const transcriptDiv = document.getElementById('transcript');
+
+            recordBtn.onclick = () => {
+                recognition.start();
+                recordBtn.innerText = "Listening...";
+                recordBtn.disabled = true;
+                transcriptDiv.classList.add('active-pulse');
+            };
+
+            stopBtn.onclick = () => {
+                recognition.stop();
+                recordBtn.innerText = "Start Listening";
+                recordBtn.disabled = false;
+                transcriptDiv.classList.remove('active-pulse');
+            };
+
+            recognition.onresult = (event) => {
+                let currentTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    currentTranscript += event.results[i][0].transcript;
+                }
+                transcriptDiv.innerText = currentTranscript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Error:", event.error);
+                recordBtn.disabled = false;
+                recordBtn.innerText = "Start Listening";
+            };
+        }
+    </script>
+</body>
+</html>
